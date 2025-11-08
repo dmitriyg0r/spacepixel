@@ -6,13 +6,9 @@ const ControlPanel = ({
   colors,
   activeColor,
   onColorSelect,
-  onClearCanvas,
-  paintedPixels,
-  totalPixels,
   activeTool,
   onToolChange,
 }) => {
-  const completion = Math.round((paintedPixels / totalPixels) * 100);
 
   return (
     <section className="control-panel" aria-label="Панель управления">
@@ -24,6 +20,13 @@ const ControlPanel = ({
             title="Кисть"
           >
             ✏️
+          </button>
+          <button
+            className={`tool-button ${activeTool === 'eraser' ? 'active' : ''}`}
+            onClick={() => onToolChange('eraser')}
+            title="Ластик"
+          >
+            🧹
           </button>
           <button
             className={`tool-button ${activeTool === 'hand' ? 'active' : ''}`}
@@ -38,7 +41,6 @@ const ControlPanel = ({
 
         <div className="panel-actions">
           <div className="color-indicator" style={{ backgroundColor: activeColor }} title={activeColor.toUpperCase()} />
-          <div className="completion-badge">{completion}%</div>
         </div>
       </div>
     </section>

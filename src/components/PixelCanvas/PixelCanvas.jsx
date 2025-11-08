@@ -63,7 +63,7 @@ const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewport
 
   const handlePointerDown = useCallback(
     (index, event) => {
-      if (activeTool !== 'pen') return;
+      if (activeTool === 'hand') return;
       event.preventDefault();
       event.stopPropagation();
       setIsPainting(true);
@@ -74,7 +74,7 @@ const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewport
 
   const handlePointerEnter = useCallback(
     (index, event) => {
-      if (!isPainting || activeTool !== 'pen') return;
+      if (!isPainting || activeTool === 'hand') return;
       event.preventDefault();
       onPaintPixel(index);
     },
@@ -112,7 +112,7 @@ const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewport
       className="canvas-stage"
       onPointerDown={handleCanvasPointerDown}
       onPointerMove={handleCanvasPointerMove}
-      style={{ cursor: isPanning ? 'grabbing' : (activeTool === 'hand' ? 'grab' : 'crosshair') }}
+      style={{ cursor: isPanning ? 'grabbing' : (activeTool === 'hand' ? 'grab' : activeTool === 'eraser' ? 'not-allowed' : 'crosshair') }}
     >
       <div 
         ref={canvasRef}

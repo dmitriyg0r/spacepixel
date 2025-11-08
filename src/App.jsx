@@ -24,22 +24,14 @@ function App() {
   const handlePaintPixel = useCallback(
     (index) => {
       setPixels((prev) => {
-        if (prev[index] === activeColor) return prev;
+        const newColor = activeTool === 'eraser' ? BASE_CANVAS_COLOR : activeColor;
+        if (prev[index] === newColor) return prev;
         const next = [...prev];
-        next[index] = activeColor;
+        next[index] = newColor;
         return next;
       });
     },
-    [activeColor],
-  );
-
-  const handleClearCanvas = useCallback(() => {
-    setPixels(createInitialPixels());
-  }, []);
-
-  const paintedPixels = useMemo(
-    () => pixels.filter((color) => color !== BASE_CANVAS_COLOR).length,
-    [pixels],
+    [activeColor, activeTool],
   );
 
   return (
@@ -58,9 +50,6 @@ function App() {
         colors={DEFAULT_COLORS}
         activeColor={activeColor}
         onColorSelect={setActiveColor}
-        onClearCanvas={handleClearCanvas}
-        paintedPixels={paintedPixels}
-        totalPixels={pixels.length}
         activeTool={activeTool}
         onToolChange={setActiveTool}
       />
