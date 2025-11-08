@@ -10,7 +10,15 @@ const createInitialPixels = () =>
 function App() {
   const [pixels, setPixels] = useState(createInitialPixels);
   const [activeColor, setActiveColor] = useState(DEFAULT_COLORS[0]);
-  const [viewport, setViewport] = useState({ x: 0, y: 0 });
+  const [viewport, setViewport] = useState(() => {
+    const cellSize = 16;
+    const canvasWidth = GRID_CONFIG.columns * cellSize;
+    const canvasHeight = GRID_CONFIG.rows * cellSize;
+    return {
+      x: (window.innerWidth - canvasWidth) / 2,
+      y: (window.innerHeight - canvasHeight) / 2,
+    };
+  });
 
   const handlePaintPixel = useCallback(
     (index) => {

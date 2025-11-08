@@ -1,4 +1,6 @@
-const PixelCell = ({ color, onPointerDown, onPointerEnter }) => (
+import { memo } from 'react';
+
+const PixelCell = memo(({ color, onPointerDown, onPointerEnter }) => (
   <div
     role="gridcell"
     tabIndex={-1}
@@ -7,6 +9,8 @@ const PixelCell = ({ color, onPointerDown, onPointerEnter }) => (
     onPointerDown={onPointerDown}
     onPointerEnter={onPointerEnter}
   />
-);
+));
+
+PixelCell.displayName = 'PixelCell';
 
 export default PixelCell;

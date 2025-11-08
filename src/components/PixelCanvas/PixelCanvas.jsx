@@ -4,14 +4,14 @@ import PixelCell from './PixelCell';
 import './PixelCanvas.css';
 
 const CELL_SIZE = 16; // Фиксированный размер ячейки
-const BUFFER = 10; // Дополнительные ячейки вокруг видимой области
+const BUFFER = 5; // Дополнительные ячейки вокруг видимой области
 
 const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewportChange }) => {
   const [isPainting, setIsPainting] = useState(false);
   const [isPanning, setIsPanning] = useState(false);
+  const [isSpacePressed, setIsSpacePressed] = useState(false);
   const canvasRef = useRef(null);
   const panStartRef = useRef({ x: 0, y: 0 });
-  const spaceKeyRef = useRef(false);
 
   useEffect(() => {
     const stopPainting = () => {
@@ -19,14 +19,15 @@ const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewport
       setIsPanning(false);
     };
     const handleKeyDown = (e) => {
-      if (e.code === 'Space') {
+      if (e.code === 'Space' && !isSpacePressed) {
         e.preventDefault();
-        spaceKeyRef.current = true;
+        setIsSpacePressed(true);
       }
     };
     const handleKeyUp = (e) => {
       if (e.code === 'Space') {
-        spaceKeyRef.current = false;
+        e.preventDefault();
+        setIsSpacePressed(false);
         setIsPanning(false);
       }
     };
@@ -40,7 +41,7 @@ const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewport
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [isSpacePressed]);
 
   // Вычисление видимой области с буфером
   const visibleArea = useMemo(() => {
@@ -57,14 +58,14 @@ const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewport
 
   const handleCanvasPointerDown = useCallback(
     (event) => {
-      if (event.button === 1 || spaceKeyRef.current) {
+      if (event.button === 1 || isSpacePressed) {
         // Средняя кнопка или пробел - начать pan
         event.preventDefault();
         setIsPanning(true);
         panStartRef.current = { x: event.clientX - viewport.x, y: event.clientY - viewport.y };
       }
     },
-    [viewport],
+    [viewport, isSpacePressed],
   );
 
   const handleCanvasPointerMove = useCallback(
@@ -81,13 +82,13 @@ const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewport
 
   const handlePointerDown = useCallback(
     (index, event) => {
-      if (isPanning || spaceKeyRef.current) return;
+      if (isPanning || isSpacePressed) return;
       event.preventDefault();
       event.stopPropagation();
       setIsPainting(true);
       onPaintPixel(index);
     },
-    [onPaintPixel, isPanning],
+    [onPaintPixel, isPanning, isSpacePressed],
   );
 
   const handlePointerEnter = useCallback(
@@ -130,7 +131,7 @@ const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewport
       className="canvas-stage"
       onPointerDown={handleCanvasPointerDown}
       onPointerMove={handleCanvasPointerMove}
-      style={{ cursor: isPanning || spaceKeyRef.current ? 'grab' : 'default' }}
+      style={{ cursor: isPanning ? 'grabbing' : (isSpacePressed ? 'grab' : 'default') }}
     >
       <div 
         ref={canvasRef}
@@ -146,8 +147,9 @@ const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewport
               position: 'absolute',
               left: `${left}px`,
               top: `${top}px`,
-              width: `${CELL_SIZE}px`,
-              height: `${CELL_SIZE}px`,
+              width: `${CELL_SIZE - 1}px`,
+              height: `${CELL_SIZE - 1}px`,
+              border: '1px solid rgba(15, 23, 42, 0.16)',
             }}
           >
             <PixelCell
