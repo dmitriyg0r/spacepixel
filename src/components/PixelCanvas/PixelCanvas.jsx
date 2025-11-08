@@ -6,10 +6,9 @@ import './PixelCanvas.css';
 const CELL_SIZE = 16; // Фиксированный размер ячейки
 const BUFFER = 5; // Дополнительные ячейки вокруг видимой области
 
-const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewportChange }) => {
+const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewportChange, activeTool }) => {
   const [isPainting, setIsPainting] = useState(false);
   const [isPanning, setIsPanning] = useState(false);
-  const [isSpacePressed, setIsSpacePressed] = useState(false);
   const canvasRef = useRef(null);
   const panStartRef = useRef({ x: 0, y: 0 });
 
@@ -18,30 +17,13 @@ const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewport
       setIsPainting(false);
       setIsPanning(false);
     };
-    const handleKeyDown = (e) => {
-      if (e.code === 'Space' && !isSpacePressed) {
-        e.preventDefault();
-        setIsSpacePressed(true);
-      }
-    };
-    const handleKeyUp = (e) => {
-      if (e.code === 'Space') {
-        e.preventDefault();
-        setIsSpacePressed(false);
-        setIsPanning(false);
-      }
-    };
     window.addEventListener('pointerup', stopPainting);
     window.addEventListener('pointercancel', stopPainting);
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
     return () => {
       window.removeEventListener('pointerup', stopPainting);
       window.removeEventListener('pointercancel', stopPainting);
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isSpacePressed]);
+  }, []);
 
   // Вычисление видимой области с буфером
   const visibleArea = useMemo(() => {
@@ -58,14 +40,13 @@ const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewport
 
   const handleCanvasPointerDown = useCallback(
     (event) => {
-      if (event.button === 1 || isSpacePressed) {
-        // Средняя кнопка или пробел - начать pan
+      if (activeTool === 'hand') {
         event.preventDefault();
         setIsPanning(true);
         panStartRef.current = { x: event.clientX - viewport.x, y: event.clientY - viewport.y };
       }
     },
-    [viewport, isSpacePressed],
+    [viewport, activeTool],
   );
 
   const handleCanvasPointerMove = useCallback(
@@ -82,22 +63,22 @@ const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewport
 
   const handlePointerDown = useCallback(
     (index, event) => {
-      if (isPanning || isSpacePressed) return;
+      if (activeTool !== 'pen') return;
       event.preventDefault();
       event.stopPropagation();
       setIsPainting(true);
       onPaintPixel(index);
     },
-    [onPaintPixel, isPanning, isSpacePressed],
+    [onPaintPixel, activeTool],
   );
 
   const handlePointerEnter = useCallback(
     (index, event) => {
-      if (!isPainting || isPanning) return;
+      if (!isPainting || activeTool !== 'pen') return;
       event.preventDefault();
       onPaintPixel(index);
     },
-    [isPainting, isPanning, onPaintPixel],
+    [isPainting, activeTool, onPaintPixel],
   );
 
   // Рендерим только видимые пиксели
@@ -131,7 +112,7 @@ const PixelCanvas = ({ pixels, columns, rows, onPaintPixel, viewport, onViewport
       className="canvas-stage"
       onPointerDown={handleCanvasPointerDown}
       onPointerMove={handleCanvasPointerMove}
-      style={{ cursor: isPanning ? 'grabbing' : (isSpacePressed ? 'grab' : 'default') }}
+      style={{ cursor: isPanning ? 'grabbing' : (activeTool === 'hand' ? 'grab' : 'crosshair') }}
     >
       <div 
         ref={canvasRef}

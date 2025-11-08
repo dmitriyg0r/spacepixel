@@ -10,6 +10,7 @@ const createInitialPixels = () =>
 function App() {
   const [pixels, setPixels] = useState(createInitialPixels);
   const [activeColor, setActiveColor] = useState(DEFAULT_COLORS[0]);
+  const [activeTool, setActiveTool] = useState('pen'); // 'pen' или 'hand'
   const [viewport, setViewport] = useState(() => {
     const cellSize = 16;
     const canvasWidth = GRID_CONFIG.columns * cellSize;
@@ -50,6 +51,7 @@ function App() {
         onPaintPixel={handlePaintPixel}
         viewport={viewport}
         onViewportChange={setViewport}
+        activeTool={activeTool}
       />
 
       <ControlPanel
@@ -59,6 +61,8 @@ function App() {
         onClearCanvas={handleClearCanvas}
         paintedPixels={paintedPixels}
         totalPixels={pixels.length}
+        activeTool={activeTool}
+        onToolChange={setActiveTool}
       />
     </div>
   );

@@ -9,31 +9,37 @@ const ControlPanel = ({
   onClearCanvas,
   paintedPixels,
   totalPixels,
+  activeTool,
+  onToolChange,
 }) => {
   const completion = Math.round((paintedPixels / totalPixels) * 100);
 
   return (
     <section className="control-panel" aria-label="Панель управления">
-      <div className="panel-top">
-        <div>
-          <p className="panel-subtitle">Текущий цвет</p>
-          <div className="panel-active-color">
-            <div className="color-preview" style={{ backgroundColor: activeColor }} />
-            <strong>{activeColor.toUpperCase()}</strong>
-          </div>
+      <div className="panel-row">
+        <div className="tool-selector">
+          <button
+            className={`tool-button ${activeTool === 'pen' ? 'active' : ''}`}
+            onClick={() => onToolChange('pen')}
+            title="Кисть"
+          >
+            ✏️
+          </button>
+          <button
+            className={`tool-button ${activeTool === 'hand' ? 'active' : ''}`}
+            onClick={() => onToolChange('hand')}
+            title="Рука"
+          >
+            ✋
+          </button>
         </div>
-        <div className="panel-stats">
-          <p className="panel-subtitle">Заполнено</p>
-          <strong>{completion}%</strong>
+
+        <ColorPalette colors={colors} activeColor={activeColor} onColorSelect={onColorSelect} />
+
+        <div className="panel-actions">
+          <div className="color-indicator" style={{ backgroundColor: activeColor }} title={activeColor.toUpperCase()} />
+          <div className="completion-badge">{completion}%</div>
         </div>
-      </div>
-
-      <ColorPalette colors={colors} activeColor={activeColor} onColorSelect={onColorSelect} />
-
-      <div className="panel-actions">
-        <PanelButton variant="ghost" onClick={onClearCanvas}>
-          Очистить холст
-        </PanelButton>
       </div>
     </section>
   );
