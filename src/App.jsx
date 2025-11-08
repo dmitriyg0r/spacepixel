@@ -10,6 +10,7 @@ const createInitialPixels = () =>
 function App() {
   const [pixels, setPixels] = useState(createInitialPixels);
   const [activeColor, setActiveColor] = useState(DEFAULT_COLORS[0]);
+  const [viewport, setViewport] = useState({ x: 0, y: 0 });
 
   const handlePaintPixel = useCallback(
     (index) => {
@@ -39,6 +40,8 @@ function App() {
         columns={GRID_CONFIG.columns}
         rows={GRID_CONFIG.rows}
         onPaintPixel={handlePaintPixel}
+        viewport={viewport}
+        onViewportChange={setViewport}
       />
 
       <ControlPanel

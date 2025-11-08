@@ -11,12 +11,11 @@ export const DEFAULT_COLORS = [
   '#8B5CF6', // violet
   '#6366F1', // indigo
   '#0F172A', // almost black
-  '#FFFFFF', // pure white
 ];
 
 export const GRID_CONFIG = {
-  columns: 64,
-  rows: 36,
+  columns: 512,
+  rows: 288,
 };
 
 export const BASE_CANVAS_COLOR = '#FFFFFF';
